@@ -2,17 +2,18 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'NodeJS 18' // Match the name you gave in Jenkins tool config
+        nodejs 'NodeJS 18'  // Make sure Jenkins tool config name matches
     }
 
     environment {
         MONGO_URL = 'mongodb://localhost:27017/mydb'
+        PORT = '3000'
     }
 
     stages {
-        stage('Clone') {
+        stage('Checkout') {
             steps {
-                git 'https://github.com/yourname/your-nodejs-project.git'
+                git branch: 'main', url: 'https://github.com/Praveensethuvel-27/lms.git'
             }
         }
 
@@ -30,15 +31,25 @@ pipeline {
 
         stage('Build') {
             steps {
-                echo 'Build completed (if applicable)'
+                echo 'Build step - you can add build commands here if any'
             }
         }
 
         stage('Deploy') {
             steps {
-                echo 'Deploying the app...'
-                bat 'pm2 restart app.js || pm2 start app.js'
+                echo 'Starting/Restarting app with PM2...'
+                bat 'pm2 restart app.js || pm2 start app.js --name lms-app'
+                echo "App running at http://localhost:${env.PORT}"
             }
+        }
+    }
+    
+    post {
+        success {
+            echo '🎉 Pipeline completed successfully!'
+        }
+        failure {
+            echo '❌ Pipeline failed!'
         }
     }
 }
