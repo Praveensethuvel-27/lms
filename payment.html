@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Payment</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #121212 0%, #1a1a1a 100%);
+      color: #e0e0e0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .payment-container {
+      background: #1f1f1f;
+      padding: 2rem 3rem;
+      border-radius: 12px;
+      width: 500px;
+      box-shadow: 0 4px 20px rgba(255, 179, 0, 0.2);
+      transition: transform 0.3s ease;
+    }
+    .payment-container:hover {
+      transform: translateY(-5px);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #ffb300;
+      font-weight: 600;
+    }
+    .course-list {
+      margin-bottom: 1.5rem;
+    }
+    .course-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+    .total {
+      font-weight: bold;
+      text-align: right;
+      margin-bottom: 1.5rem;
+    }
+    #qrCode {
+      display: block;
+      margin: 0 auto 1.5rem;
+      max-width: 200px;
+    }
+    button {
+      width: 100%;
+      background: #ff6d00;
+      color: #121212;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+    button:hover:not(:disabled) {
+      background: #e65c00;
+      transform: scale(1.02);
+    }
+    button:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+    .error {
+      color: #ff4d4d;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      text-align: center;
+      display: none;
+      padding: 0.5rem;
+      background: rgba(255, 77, 77, 0.1);
+      border-radius: 4px;
+    }
+    @media (max-width: 600px) {
+      .payment-container {
+        width: 90%;
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="payment-container">
+    <h2>Course Payment</h2>
+    <div class="error" id="errorMsg"></div>
+    <div class="course-list" id="courseList"></div>
+    <div class="total" id="total"></div>
+    <img id="qrCode" alt="Payment QR Code">
+    <button id="paymentDoneBtn">Payment Done</button>
+  </div>
+
+  <script>
+    const email = localStorage.getItem('userEmail') || 'test@example.com';
+    const role = localStorage.getItem('userRole') || 'student';
+
+    async function loadPaymentDetails() {
+      try {
+        const response = await fetch('/payment-details', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const data = await response.json();
+        if (response.ok) {
+          const courseList = document.getElementById('courseList');
+          const totalEl = document.getElementById('total');
+          const qrCode = document.getElementById('qrCode');
+          
+          data.courses.forEach(course => {
+            const courseItem = document.createElement('div');
+            courseItem.className = 'course-item';
+            courseItem.innerHTML = `<span>${course.name}</span><span>₹${course.charge}</span>`;
+            courseList.appendChild(courseItem);
+          });
+          totalEl.textContent = `Total: ₹${data.totalCharge}`;
+          qrCode.src = data.qrCodeUrl;
+        } else {
+          document.getElementById('errorMsg').textContent = data.error || 'Error loading payment details';
+          document.getElementById('errorMsg').style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Payment details error:', error);
+        document.getElementById('errorMsg').textContent = 'Server error. Please try again later.';
+        document.getElementById('errorMsg').style.display = 'block';
+      }
+    }
+
+    document.getElementById('paymentDoneBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('paymentDoneBtn');
+      btn.disabled = true;
+      btn.textContent = 'Processing...';
+      try {
+        const response = await fetch('/confirm-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const data = await response.json();
+        if (response.ok) {
+          alert('Payment confirmed. Awaiting admin approval.');
+          window.location.href = '/dashboard';
+        } else {
+          document.getElementById('errorMsg').textContent = data.error || 'Error confirming payment';
+          document.getElementById('errorMsg').style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Payment confirmation error:', error);
+        document.getElementById('errorMsg').textContent = 'Server error. Please try again later.';
+        document.getElementById('errorMsg').style.display = 'block';
+      }
+      btn.disabled = false;
+      btn.textContent = 'Payment Done';
+    });
+
+    loadPaymentDetails();
+  </script>
+</body>
+</html>

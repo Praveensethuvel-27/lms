@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Task Details - Sethu LMS</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #121212 0%, #1a1a1a 100%);
+      color: #e0e0e0;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 2rem;
+    }
+    .container { max-width: 800px; margin: 0 auto; flex-grow: 1; }
+    .header {
+      background: #1f1f1f;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(255, 179, 0, 0.2);
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header h1 { color: #E6F0FA; font-size: 1.8rem; margin: 0; }
+    .back-btn, .action-btn, .next-btn {
+      background: #ff6d00;
+      border: none;
+      padding: 0.7rem 1.5rem;
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s ease, transform 0.2s ease;
+      margin-left: 0.5rem;
+    }
+    .back-btn:hover, .action-btn:hover, .next-btn:hover {
+      background: #e65c00;
+      transform: scale(1.05);
+    }
+    .task-section {
+      background: #1f1f1f;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(255, 179, 0, 0.2);
+    }
+    .task-section h2 { color: #ffb300; font-size: 1.6rem; margin: 0 0 1rem; }
+    .task-section h3 { color: #ffca28; font-size: 1.4rem; margin: 0 0 0.5rem; }
+    .task-section p { color: #b0b0b0; margin: 0 0 1rem; }
+    .status-not_started { color: #e53935; font-weight: bold; font-size: 1.2rem; }
+    .status-in_progress { color: #ffca28; font-weight: bold; font-size: 1.2rem; }
+    .status-submitted { color: #2196f3; font-weight: bold; font-size: 1.2rem; }
+    .status-completed { color: #4caf50; font-weight: bold; font-size: 1.2rem; }
+    .error { color: #ff4d4d; font-size: 0.9rem; display: none; }
+    @media (max-width: 600px) {
+      .container { padding: 1rem; }
+      .header h1 { font-size: 1.5rem; }
+      .task-section { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>Task Details</h1>
+      <button class="back-btn" id="backBtn">Back to Dashboard</button>
+    </header>
+    <section class="task-section" id="taskSection">
+      <h2>Loading...</h2>
+      <p class="error" id="errorMsg"></p>
+    </section>
+  </div>
+  <script>
+    async function loadTask() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const courseId = parseInt(urlParams.get('courseId'));
+      const taskId = parseInt(urlParams.get('taskId'));
+      const email = localStorage.getItem('userEmail');
+      const role = localStorage.getItem('userRole');
+
+      console.log(`Loading task: courseId=${courseId}, taskId=${taskId}, email=${email}, role=${role}`);
+
+      if (!email || !role || role !== 'student' || !courseId || !taskId) {
+        document.getElementById('errorMsg').textContent = 'Invalid session or task parameters. Please log in again or select a valid task.';
+        document.getElementById('errorMsg').style.display = 'block';
+        setTimeout(() => { window.location.href = '/login'; }, 2000);
+        return;
+      }
+
+      try {
+        // Fetch user data
+        const userResponse = await fetch('/user-data', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        if (!userResponse.ok) {
+          throw new Error(`User data fetch failed: ${userResponse.status}`);
+        }
+        const userData = await userResponse.json();
+        if (userData.error) {
+          throw new Error(userData.error);
+        }
+
+        const course = userData.user.courses.find(c => c.id === courseId);
+        if (!course) {
+          throw new Error(`Course with ID ${courseId} not found`);
+        }
+
+        const assessment = course.assessments.find(a => a.id === taskId);
+        if (!assessment) {
+          throw new Error(`Task with ID ${taskId} not found in course ${courseId}`);
+        }
+
+        // Fetch task details
+        const taskResponse = await fetch(`/task-data?courseId=${courseId}&taskId=${taskId}`);
+        if (!taskResponse.ok) {
+          throw new Error(`Task data fetch failed: ${taskResponse.status}`);
+        }
+        const taskData = await taskResponse.json();
+        if (taskData.error) {
+          throw new Error(taskData.error);
+        }
+
+        // Combine server task data with user assessment data
+        const task = {
+          ...taskData.task,
+          status: assessment.status,
+          description: assessment.description || taskData.task.description
+        };
+
+        // Find next task or course
+        let nextTask = null;
+        const currentIndex = course.assessments.findIndex(a => a.id === taskId);
+        nextTask = course.assessments[currentIndex + 1] || null;
+        let nextCourse = null;
+        let allTasksCompleted = course.assessments.every(a => a.status === 'completed' || a.status === 'submitted');
+        if (!nextTask && allTasksCompleted) {
+          const nextCourseCandidate = userData.user.courses.find(c => c.id > courseId && c.assessments.some(a => a.status !== 'completed' && a.status !== 'submitted'));
+          if (nextCourseCandidate) {
+            nextCourse = { courseId: nextCourseCandidate.id, name: nextCourseCandidate.name };
+            nextTask = nextCourseCandidate.assessments.find(a => a.status !== 'completed' && a.status !== 'submitted') || null;
+            if (nextTask) {
+              nextTask = { courseId: nextCourse.courseId, taskId: nextTask.id };
+            }
+          }
+        } else if (nextTask) {
+          nextTask = { courseId, taskId: nextTask.id };
+        }
+
+        // Render task details
+        let buttons = '';
+        if (task.status === 'not_started') {
+          buttons = `<button class="action-btn start-task" data-course-id="${courseId}" data-task-id="${taskId}">Start</button>`;
+        } else if (task.status === 'in_progress') {
+          buttons = `<button class="action-btn submit-task" data-course-id="${courseId}" data-task-id="${taskId}">Submit</button>`;
+        } else if (task.status === 'submitted') {
+          buttons = `<span>Submitted, awaiting trainer review</span>`;
+        } else if (task.status === 'completed') {
+          buttons = `<span>Completed</span>`;
+        }
+
+        document.getElementById('taskSection').innerHTML = `
+          <h2>${task.name}</h2>
+          <p>Status: <span class="status-${task.status}">${task.status.replace('_', ' ').toUpperCase()}</span></p>
+          <p>Description: ${task.description}</p>
+          ${buttons}
+          <p class="error" id="errorMsg" style="display: none;"></p>
+        `;
+
+        // Add Next Task button if applicable
+        if ((task.status === 'submitted' || task.status === 'completed') && nextTask) {
+          const nextButton = document.createElement('button');
+          nextButton.className = 'next-btn';
+          nextButton.textContent = 'Next Task';
+          nextButton.addEventListener('click', () => {
+            window.location.href = `/task?courseId=${nextTask.courseId}&taskId=${nextTask.taskId}`;
+          });
+          document.getElementById('taskSection').appendChild(nextButton);
+        }
+
+        // Handle task status updates
+        document.querySelectorAll('.start-task').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            btn.disabled = true;
+            try {
+              const response = await fetch('/update-task', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, courseId, taskId, status: 'in_progress' })
+              });
+              const data = await response.json();
+              if (response.ok) {
+                window.location.reload();
+              } else {
+                throw new Error(data.error || 'Error starting task');
+              }
+            } catch (error) {
+              console.error('Error starting task:', error);
+              document.getElementById('errorMsg').textContent = error.message;
+              document.getElementById('errorMsg').style.display = 'block';
+              btn.disabled = false;
+            }
+          });
+        });
+
+        document.querySelectorAll('.submit-task').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            btn.disabled = true;
+            try {
+              const response = await fetch('/update-task', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, courseId, taskId, status: 'submitted' })
+              });
+              const data = await response.json();
+              if (response.ok) {
+                if (data.nextTask) {
+                  window.location.href = `/task?courseId=${data.nextTask.courseId}&taskId=${data.nextTask.taskId}`;
+                } else if (data.allTasksCompleted && data.nextCourse) {
+                  const nextTask = userData.user.courses.find(c => c.id === data.nextCourse.courseId).assessments.find(a => a.status !== 'completed' && a.status !== 'submitted');
+                  if (nextTask) {
+                    window.location.href = `/task?courseId=${data.nextCourse.courseId}&taskId=${nextTask.id}`;
+                  } else {
+                    alert('All courses completed!');
+                    window.location.href = '/dashboard';
+                  }
+                } else {
+                  window.location.reload();
+                }
+              } else {
+                throw new Error(data.error || 'Error submitting task');
+              }
+            } catch (error) {
+              console.error('Error submitting task:', error);
+              document.getElementById('errorMsg').textContent = error.message;
+              document.getElementById('errorMsg').style.display = 'block';
+              btn.disabled = false;
+            }
+          });
+        });
+
+      } catch (error) {
+        console.error('Load task error:', error);
+        document.getElementById('taskSection').innerHTML = '<h2>Error</h2><p>Failed to load task details.</p>';
+        document.getElementById('errorMsg').textContent = error.message;
+        document.getElementById('errorMsg').style.display = 'block';
+        setTimeout(() => { window.location.href = '/dashboard'; }, 2000);
+      }
+    }
+
+    document.getElementById('backBtn').addEventListener('click', () => {
+      window.location.href = '/dashboard';
+    });
+
+    loadTask();
+  </script>
+</body>
+</html>

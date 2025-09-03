@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Home - ProLearn360</title>
+  <link rel="stylesheet" href="home.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="logo">
+        <img src="logo.png" alt="ProLearn360 Logo" class="logo-img" />
+        <span>ProLearn360</span>
+      </div>
+      <ul class="nav-links">
+        <li><a href="home.html" class="active">Home</a></li>
+        <li><a href="courses.html">Courses</a></li>
+        <li><a href="about.html">About us</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+      </ul>
+      <button class="menu-toggle" aria-label="Toggle menu">&#9776;</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-text">
+        <h1>Upgrade Your Skills With Our LMS</h1>
+        <p>Explore courses, learn at your own pace, and grow your career.</p>
+        <button class="cta-btn">Browse Courses</button>
+      </div>
+      <div class="hero-image">
+        <img src="dark-mode-8044450-6430851-removebg-preview.png" alt="Dark mode learning illustration" />
+      </div>
+    </section>
+
+    <section class="course-search">
+      <input
+        type="text"
+        id="search-input"
+        placeholder="Search courses..."
+        aria-label="Search courses"
+      />
+    </section>
+
+    <section class="featured-courses">
+      <h2>Featured Courses</h2>
+      <div class="course-list" id="course-list">
+        <!-- Dynamic course cards loaded via JS -->
+      </div>
+    </section>
+
+    <section class="testimonials">
+      <h2>What Our Students Say</h2>
+      <div class="testimonial-cards" id="testimonial-cards"></div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <p>&copy; 2025 LMS. All rights reserved.</p>
+      <ul class="social-links">
+        <li><a href="#" aria-label="Facebook">Facebook</a></li>
+        <li><a href="#" aria-label="Twitter">Twitter</a></li>
+        <li><a href="#" aria-label="LinkedIn">LinkedIn</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script src="home.js"></script>
+</body>
+</html>

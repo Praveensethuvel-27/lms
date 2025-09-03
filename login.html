@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login - ProLearn360</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    /* === Base Styles and Resets === */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(135deg, #121212 0%, #1a1a1a 100%);
+      color: #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      margin: 0;
+      padding-top: 70px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Accessibility: Focus outline for keyboard users */
+    :focus-visible {
+      outline: 3px solid #ffa500;
+      outline-offset: 2px;
+    }
+
+    /* === Navbar === */
+    .navbar {
+      background-color: #1f1f1f;
+      box-shadow: 0 2px 8px rgba(255, 165, 0, 0.2);
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 9999;
+      transition: background-color 0.3s ease;
+    }
+
+    .navbar:hover,
+    .navbar:focus-within {
+      background-color: #2a2a2a;
+    }
+
+    /* Navbar Logo */
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: #ffa500;
+      user-select: none;
+      letter-spacing: 2px;
+      cursor: default;
+      transition: color 0.3s ease;
+    }
+
+    .logo:hover {
+      color: #ffb732;
+    }
+
+    .logo-img {
+      max-width: 80px;
+      height: auto;
+      vertical-align: middle;
+    }
+
+    .logo span {
+      line-height: 1;
+    }
+
+    /* Nav Links */
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 2rem;
+      font-weight: 600;
+      font-size: 1rem;
+      align-items: center;
+      transition: max-height 0.3s ease, opacity 0.3s ease;
+    }
+
+    .nav-links li a {
+      color: #e0e0e0;
+      text-decoration: none;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      transition: background-color 0.25s ease, color 0.25s ease;
+      position: relative;
+      user-select: none;
+    }
+
+    .nav-links li a:hover,
+    .nav-links li a:focus-visible,
+    .nav-links li a.active {
+      background-color: #ffa500;
+      color: #121212;
+      box-shadow: 0 0 10px #ffa500cc;
+      font-weight: 700;
+    }
+
+    .nav-links li a::after {
+      content: '';
+      display: block;
+      height: 3px;
+      width: 0;
+      background: #ffa500;
+      border-radius: 2px;
+      transition: width 0.3s ease;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+    }
+
+    .nav-links li a:hover::after,
+    .nav-links li a:focus-visible::after,
+    .nav-links li a.active::after {
+      width: 100%;
+    }
+
+    /* Menu Toggle Button */
+    .menu-toggle {
+      display: none;
+      font-size: 2rem;
+      background: none;
+      border: none;
+      color: #ffa500;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .menu-toggle:hover,
+    .menu-toggle:focus-visible {
+      color: #ffb732;
+    }
+
+    /* === Login Container === */
+    .login-container {
+      background: #1f1f1f;
+      padding: 2rem;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 4px 20px rgba(255, 179, 0, 0.2);
+      transition: transform 0.3s ease;
+      margin: 2rem auto;
+    }
+
+    .login-container:hover {
+      transform: translateY(-5px);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #ffb300;
+      font-weight: 700;
+      font-size: 1.8rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #e0e0e0;
+      font-size: 1rem;
+    }
+
+    input[type="email"],
+    input[type="password"],
+    select {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      background: #2a2a2a;
+      color: #e0e0e0;
+      transition: outline 0.2s ease, background 0.2s ease;
+    }
+
+    select {
+      height: 40px;
+    }
+
+    select:invalid {
+      color: #888;
+    }
+
+    input[type="email"]:focus,
+    input[type="password"]:focus,
+    select:focus {
+      outline: 2px solid #ffb300;
+      background: #333;
+    }
+
+    button {
+      width: 100%;
+      background: #ff6d00;
+      color: #121212;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    button:hover:not(:disabled) {
+      background: #e65c00;
+      transform: scale(1.02);
+    }
+
+    button:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+
+    .error {
+      color: #ff4d4d;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      text-align: center;
+      display: none;
+      padding: 0.5rem;
+      background: rgba(255, 77, 77, 0.1);
+      border-radius: 4px;
+    }
+
+    .register-link {
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .register-link a {
+      color: #ffb300;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .register-link a:hover {
+      text-decoration: underline;
+    }
+
+    /* === Responsive Styles === */
+    @media (max-width: 768px) {
+  .navbar {
+    padding: 0.8rem 1rem;
+    flex-direction: row;
+    align-items: center;
+    position: relative; /* Ensure proper context for absolute positioning */
+  }
+
+  .logo {
+    font-size: 1.5rem;
+  }
+
+  .logo-img {
+    max-width: 60px;
+  }
+
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    gap: 1rem;
+    padding: 0;
+    margin-top: 60px;
+    background-color: #1f1f1f;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0; /* Ensure it spans the full width */
+  }
+
+  .nav-links.show {
+    display: flex;
+    max-height: 300px;
+    opacity: 1;
+    padding: 1rem 0;
+  }
+
+  .nav-links li {
+    width: 100%;
+    text-align: center;
+  }
+
+  .nav-links li a {
+    display: block;
+    padding: 0.8rem 1rem;
+    font-size: 1.1rem;
+  }
+
+  .menu-toggle {
+    display: block;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10000;
+    margin: 0; /* Remove any default margin that might center it */
+  }
+
+  .login-container {
+    width: 90%;
+    padding: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  label {
+    font-size: 0.95rem;
+  }
+
+  input[type="email"],
+  input[type="password"],
+  select {
+    padding: 0.6rem;
+    font-size: 0.95rem;
+  }
+
+  button {
+    padding: 0.6rem;
+    font-size: 1rem;
+  }
+}
+    @media (max-width: 480px) {
+      .login-container {
+        width: 95%;
+        padding: 1.2rem;
+        margin: 1.5rem auto;
+      }
+
+      h2 {
+        font-size: 1.3rem;
+      }
+
+      label {
+        font-size: 0.9rem;
+      }
+
+      input[type="email"],
+      input[type="password"],
+      select {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+      }
+
+      button {
+        padding: 0.5rem;
+        font-size: 0.95rem;
+      }
+
+      .error {
+        font-size: 0.85rem;
+      }
+
+      .register-link {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="logo">
+        <img src="logo.png" alt="ProLearn360 Logo" class="logo-img" />
+        <span>ProLearn360</span>
+      </div>
+      <ul class="nav-links">
+        <li><a href="home.html">Home</a></li>
+        <li><a href="courses.html">Courses</a></li>
+        <li><a href="about.html">About us</a></li>
+        <li><a href="dashboard.html" class="active">Dashboard</a></li>
+      </ul>
+      <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false">&#9776;</button>
+    </nav>
+  </header>
+  <div class="login-container">
+    <h2>Login - ProLearn360</h2>
+    <form id="loginForm" novalidate>
+      <div class="error" id="errorMsg"></div>
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="Your email" required />
+      <label for="role">Role</label>
+      <select id="role" required>
+        <option value="" disabled selected hidden>-- Select Role --</option>
+        <option value="student">Student</option>
+        <option value="trainer">Trainer</option>
+        <option value="admin">Admin</option>
+      </select>
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Your password" required />
+      <button type="submit" id="loginBtn">Login</button>
+    </form>
+    <div class="register-link">
+      <p>Not registered? <a href="/register">Register here</a>.</p>
+    </div>
+  </div>
+
+  <script>
+    // Select DOM elements
+    const menuToggle = document.querySelector('.menu-toggle');
+    const navLinks = document.querySelector('.nav-links');
+    const form = document.getElementById('loginForm');
+    const errorMsg = document.getElementById('errorMsg');
+    const loginBtn = document.getElementById('loginBtn');
+
+    // Toggle navigation menu on click
+    menuToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('show');
+      const expanded = navLinks.classList.contains('show');
+      menuToggle.setAttribute('aria-expanded', expanded);
+      menuToggle.innerHTML = expanded ? '&times;' : '&#9776;';
+    });
+
+    // Close menu when clicking a nav link on mobile
+    navLinks.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        if (navLinks.classList.contains('show')) {
+          navLinks.classList.remove('show');
+          menuToggle.setAttribute('aria-expanded', 'false');
+          menuToggle.innerHTML = '&#9776;';
+        }
+      });
+    });
+
+    // Form submission handling
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Logging in...';
+
+      const email = form.email.value.trim();
+      const role = form.role.value;
+      const password = form.password.value.trim();
+
+      // Client-side validation
+      if (!email || !role || !password) {
+        errorMsg.textContent = 'Please fill in all fields.';
+        errorMsg.style.display = 'block';
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Login';
+        return;
+      }
+
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailPattern.test(email)) {
+        errorMsg.textContent = 'Please enter a valid email address.';
+        errorMsg.style.display = 'block';
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Login';
+        return;
+      }
+
+      if (password.length < 6) {
+        errorMsg.textContent = 'Password must be at least 6 characters.';
+        errorMsg.style.display = 'block';
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Login';
+        return;
+      }
+
+      try {
+        const response = await fetch('/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, role, password }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          errorMsg.style.display = 'none';
+          localStorage.setItem('userEmail', email);
+          localStorage.setItem('userRole', role);
+          alert(`Logged in successfully as: ${email} (${role.charAt(0).toUpperCase() + role.slice(1)})`);
+          window.location.href = data.redirect;
+        } else {
+          errorMsg.textContent = data.error || 'Invalid email, role, or password.';
+          errorMsg.style.display = 'block';
+          loginBtn.disabled = false;
+          loginBtn.textContent = 'Login';
+        }
+      } catch (error) {
+        console.error('Login fetch error:', error);
+        errorMsg.textContent = 'Server error during login. Please try again later.';
+        errorMsg.style.display = 'block';
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Login';
+      }
+    });
+  </script>
+</body>
+</html>

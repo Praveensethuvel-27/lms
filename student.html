@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Course Registration</title>
+  <style>
+    body { font-family: 'Inter', sans-serif; background: #1a1a1a; color: #e0e0e0; margin: 0; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; background: #2a2a2a; padding: 20px; border-radius: 8px; }
+    h2 { color: #ffb300; }
+    select { width: 100%; padding: 10px; margin: 10px 0; background: #333; color: #e0e0e0; border: none; border-radius: 4px; }
+    button { background: #ff6d00; border: none; padding: 10px 20px; color: #fff; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #e65c00; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Register Your Courses</h2>
+    <form id="courseForm">
+      <label for="studentID">Student ID:</label>
+      <input type="text" id="studentID" name="studentID" required placeholder="Enter your Student ID" /><br/>
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" required placeholder="Enter your Username" /><br/>
+      <label for="courses">Select Courses:</label>
+      <select id="courses" name="courses" multiple required>
+        <option value="1">Web Development</option>
+        <option value="2">Data Science</option>
+        <option value="3">Machine Learning</option>
+      </select>
+      <button type="submit">Register Courses</button>
+    </form>
+    <div id="message"></div>
+  </div>
+  <script>
+    document.getElementById('courseForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = localStorage.getItem('userEmail');
+      const studentID = document.getElementById('studentID').value;
+      const username = document.getElementById('username').value;
+      const courses = Array.from(document.getElementById('courses').selectedOptions).map(opt => ({ id: parseInt(opt.value), name: opt.text }));
+      const response = await fetch('/course-registration', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, studentID, username, courses, role: 'student' })
+      });
+      const data = await response.json();
+      document.getElementById('message').textContent = data.message || data.error;
+      if (data.redirect) window.location.href = data.redirect;
+    });
+  </script>
+</body>
+</html>

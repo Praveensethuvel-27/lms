@@ -1,0 +1,427 @@
+/* Base and navbar reused from home page for consistency */
+body {
+  font-family: 'Montserrat', sans-serif;
+  background-color: #121212;
+  color: #e0e0e0;
+  line-height: 1.6;
+  font-size: 16px;
+  margin: 0;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.navbar {
+  background-color: #1f1f1f;
+  box-shadow: 0 2px 8px rgba(255, 165, 0, 0.2);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 9999;
+  transition: background-color 0.3s ease;
+}
+
+.logo {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #ffa500;
+  letter-spacing: 3px;
+  cursor: default;
+  user-select: none;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 2.5rem;
+  font-weight: 600;
+  font-size: 1.05rem;
+  align-items: center;
+}
+
+.nav-links li a {
+  color: #e0e0e0;
+  text-decoration: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  transition: background-color 0.25s ease, color 0.25s ease;
+  user-select: none;
+}
+
+.nav-links li a.active,
+.nav-links li a:hover,
+.nav-links li a:focus-visible {
+  background-color: #ffa500;
+  color: #121212;
+  box-shadow: 0 0 10px #ffa500cc;
+  font-weight: 700;
+  outline-offset: 4px;
+}
+
+.menu-toggle {
+  background: none;
+  border: none;
+  color: #ffa500;
+  font-size: 2.5rem;
+  cursor: pointer;
+  display: none;
+}
+
+.menu-toggle:hover,
+.menu-toggle:focus-visible {
+  color: #ffb732;
+}
+
+/* Page Header */
+.page-header {
+  max-width: 1000px;
+  margin: 3rem auto 1.5rem auto;
+  padding: 0 2rem;
+  text-align: center;
+  user-select: none;
+}
+
+.page-header h1 {
+  font-size: 3.6rem;
+  font-weight: 900;
+  margin-bottom: 1rem;
+  color: #ffa500;
+  letter-spacing: 0.05em;
+  text-shadow: 2px 2px 6px #ffb732aa;
+}
+
+.page-header p {
+  font-size: 1.4rem;
+  color: #ccc;
+  max-width: 620px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Filters Section */
+.filters {
+  max-width: 960px;
+  margin: 2rem auto 3rem auto;
+  padding: 0 2rem;
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  user-select: none;
+}
+
+.filters input[type='search'],
+.filters select {
+  background-color: #222;
+  border: none;
+  border-radius: 40px;
+  color: #eee;
+  padding: 0.85rem 1.5rem;
+  font-size: 1.15rem;
+  box-shadow: 0 0 18px #ffa500bb;
+  transition: box-shadow 0.3s ease;
+  min-width: 220px;
+  max-width: 320px;
+  cursor: text;
+}
+
+.filters input[type='search']::placeholder {
+  color: #aaa;
+  font-style: italic;
+}
+
+.filters input[type='search']:focus,
+.filters select:focus {
+  outline: none;
+  box-shadow: 0 0 30px #ffb732dd;
+}
+
+/* Course List Grid */
+.course-list {
+  max-width: 1280px;
+  margin: 0 auto 4rem auto;
+  padding: 0 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2.75rem;
+}
+
+/* Course Card */
+.course-card {
+  background-color: #222;
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(255, 165, 0, 0.35);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+  display: flex;
+  flex-direction: column;
+  min-height: 320px;
+  position: relative;
+  user-select: none;
+}
+
+.course-card:hover,
+.course-card:focus-visible {
+  transform: translateY(-10px) scale(1.05);
+  box-shadow: 0 15px 40px rgba(255, 165, 0, 0.85);
+  outline-offset: 3px;
+  outline: 3px solid #ffb732cc;
+}
+
+.course-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  filter: brightness(0.85);
+  transition: filter 0.3s ease;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+}
+
+.course-card:hover img {
+  filter: brightness(1);
+}
+
+.course-card-content {
+  padding: 1.5rem 2rem;
+  color: #e0e0e0;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.course-card-content h3 {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #ffb732;
+  margin-bottom: 0.7rem;
+  line-height: 1.15;
+}
+
+.course-card-content p {
+  font-size: 1.05rem;
+  color: #ccc;
+  margin-bottom: 1.1rem;
+  flex-grow: 1;
+}
+
+.course-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  color: #aaa;
+  font-weight: 600;
+}
+
+.course-meta span {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Modal Styles */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(18, 18, 18, 0.8);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: #1f1f1f;
+  border-radius: 20px;
+  padding: 2rem;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 30px rgba(255, 165, 0, 0.5);
+  position: relative;
+  color: #e0e0e0;
+}
+
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  font-size: 2rem;
+  color: #ffa500;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.modal-close:hover,
+.modal-close:focus-visible {
+  color: #ffb732;
+}
+
+.modal-content h2 {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #ffa500;
+  margin-bottom: 1rem;
+  text-shadow: 1px 1px 4px #ffb732aa;
+}
+
+.modal-content img {
+  width: 100%;
+  max-height: 250px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  filter: brightness(0.9);
+}
+
+.modal-content p {
+  font-size: 1.15rem;
+  color: #ccc;
+  margin-bottom: 1.5rem;
+  line-height: 1.7;
+}
+
+.modal-content .course-meta {
+  margin-bottom: 2rem;
+}
+
+.enroll-button {
+  background-color: #ffa500;
+  border: none;
+  color: #121212;
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 0.9rem 2rem;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 0 15px #ffa500cc;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.enroll-button:hover,
+.enroll-button:focus-visible {
+  background-color: #ffb732;
+  box-shadow: 0 0 25px #ffb732ee;
+  transform: scale(1.05);
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 4rem;
+  user-select: none;
+}
+
+.pagination button {
+  background-color: #222;
+  border: none;
+  color: #ffa500;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.9rem 2rem;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 0 15px #ffa500cc;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.pagination button:disabled,
+.pagination button[aria-disabled='true'] {
+  opacity: 0.3;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.pagination button:hover:not(:disabled),
+.pagination button:focus-visible:not(:disabled) {
+  background-color: #ffb732;
+  box-shadow: 0 0 25px #ffb732ee;
+  transform: scale(1.1);
+  outline-offset: 4px;
+  outline: 3px solid #ffb732cc;
+}
+
+/* Footer */
+footer {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+  padding: 2rem 3rem;
+  margin-top: 3rem;
+  border-top: 3px solid #ffa500;
+  text-align: center;
+  user-select: none;
+  font-size: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 960px) {
+  .filters {
+    justify-content: center;
+    gap: 1rem;
+  }
+  .course-list {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+  .modal-content {
+    width: 95%;
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .navbar {
+    padding: 1rem 1.5rem;
+  }
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    background: #1f1f1f;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(255, 165, 0, 0.2);
+  }
+  .nav-links.nav-active {
+    display: flex;
+  }
+  .menu-toggle {
+    display: block;
+  }
+  .page-header h1 {
+    font-size: 2.6rem;
+  }
+  .filters {
+    flex-direction: column;
+    align-items: center;
+  }
+  .filters input,
+  .filters select {
+    max-width: 100%;
+  }
+  .course-list {
+    grid-template-columns: 1fr;
+  }
+  .modal-content {
+    padding: 1rem;
+  }
+  .modal-content h2 {
+    font-size: 1.6rem;
+  }
+  .modal-content img {
+    max-height: 200px;
+  }
+}

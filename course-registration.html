@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Course Registration</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #121212 0%, #1a1a1a 100%);
+      color: #e0e0e0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .registration-container {
+      background: #1f1f1f;
+      padding: 2rem 3rem;
+      border-radius: 12px;
+      width: 500px;
+      box-shadow: 0 4px 20px rgba(255, 179, 0, 0.2);
+      transition: transform 0.3s ease;
+    }
+    .registration-container:hover {
+      transform: translateY(-5px);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #ffb300;
+      font-weight: 600;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #b0b0b0;
+    }
+    input[type="text"],
+    input[type="email"] {
+      width: 100%;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 8px;
+      background: #2a2a2a;
+      color: #e0e0e0;
+      font-size: 1rem;
+      transition: background 0.3s ease;
+    }
+    input[type="text"]:focus,
+    input[type="email"]:focus {
+      background: #333;
+      outline: none;
+    }
+    .course-selection {
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    .course-selection label {
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+      color: #e0e0e0;
+    }
+    .course-input {
+      width: 100%;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 8px;
+      background: #2a2a2a;
+      color: #e0e0e0;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .course-input:focus {
+      background: #333;
+      outline: none;
+    }
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #2a2a2a;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      max-height: 200px;
+      overflow-y: auto;
+      display: none;
+      z-index: 10;
+      margin-top: 0.5rem;
+    }
+    .dropdown-menu.show {
+      display: block;
+    }
+    .dropdown-item {
+      padding: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #e0e0e0;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .dropdown-item:hover {
+      background: #333;
+    }
+    input[type="checkbox"] {
+      accent-color: #ff6d00;
+    }
+    button {
+      width: 100%;
+      background: #ff6d00;
+      color: #121212;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+    button:hover:not(:disabled) {
+      background: #e65c00;
+      transform: scale(1.02);
+    }
+    button:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+    .error {
+      color: #ff4d4d;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      text-align: center;
+      display: none;
+      padding: 0.5rem;
+      background: rgba(255, 77, 77, 0.1);
+      border-radius: 4px;
+    }
+    @media (max-width: 600px) {
+      .registration-container {
+        width: 90%;
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="registration-container">
+    <h2>Course Registration</h2>
+    <div class="error" id="errorMsg"></div>
+    <form id="registrationForm">
+      <div class="form-group">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" name="name" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
+      </div>
+      <div class="form-group" id="studentIDGroup">
+        <label for="studentID">Student ID</label>
+        <input type="text" id="studentID" name="studentID">
+      </div>
+      <div class="course-selection">
+        <h3>Select Courses</h3>
+        <div class="form-group">
+          <label for="courseInput">Courses</label>
+          <input type="text" id="courseInput" class="course-input" readonly placeholder="Click to select courses">
+          <div id="courseDropdown" class="dropdown-menu">
+            <!-- Course options will be injected here by JavaScript -->
+          </div>
+        </div>
+      </div>
+      <button type="submit" id="submitBtn">Register</button>
+    </form>
+  </div>
+
+  <script src="courses.js"></script>
+  <script>
+    // Populate course dropdown dynamically from courses.js
+    const courseDropdown = document.getElementById('courseDropdown');
+    const courseInput = document.getElementById('courseInput');
+
+    // Store selected courses
+    let selectedCourses = [];
+
+    courses.forEach(course => {
+      const div = document.createElement('div');
+      div.className = 'dropdown-item';
+      div.innerHTML = `
+        <input type="checkbox" name="course" value="${course.id}">
+        ${course.title}
+      `;
+      courseDropdown.appendChild(div);
+    });
+
+    // Toggle dropdown on input click
+    courseInput.addEventListener('click', () => {
+      courseDropdown.classList.toggle('show');
+    });
+
+    // Handle checkbox clicks in dropdown
+    courseDropdown.addEventListener('click', (e) => {
+      if (e.target.type === 'checkbox') {
+        const courseId = parseInt(e.target.value);
+        const course = courses.find(c => c.id === courseId);
+        if (e.target.checked) {
+          selectedCourses.push({ id: courseId, name: course.title });
+        } else {
+          selectedCourses = selectedCourses.filter(c => c.id !== courseId);
+        }
+        // Update input field with selected course names
+        courseInput.value = selectedCourses.map(c => c.name).join(', ') || 'Click to select courses';
+      }
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!courseInput.contains(e.target) && !courseDropdown.contains(e.target)) {
+        courseDropdown.classList.remove('show');
+      }
+    });
+
+    // Existing logic for pre-filling email and role-based student ID
+    const email = localStorage.getItem('userEmail') || '';
+    const role = localStorage.getItem('userRole') || 'student';
+
+    if (email) {
+      document.getElementById('email').value = email;
+      document.getElementById('email').readOnly = true;
+    }
+
+    if (role !== 'student') {
+      document.getElementById('studentIDGroup').style.display = 'none';
+    }
+
+    // Form submission logic
+    document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Processing...';
+
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const studentID = document.getElementById('studentID').value;
+
+      try {
+        const response = await fetch('/course-registration', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, studentID, username: name, courses: selectedCourses })
+        });
+        const data = await response.json();
+        if (response.ok) {
+          alert('Courses registered successfully');
+          window.location.href = data.redirect || '/dashboard';
+        } else {
+          document.getElementById('errorMsg').textContent = data.error || 'Error registering courses';
+          document.getElementById('errorMsg').style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Registration error:', error);
+        document.getElementById('errorMsg').textContent = 'Server error. Please try again later.';
+        document.getElementById('errorMsg').style.display = 'block';
+      }
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Register';
+    });
+  </script>
+</body>
+</html>

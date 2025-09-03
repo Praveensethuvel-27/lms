@@ -1,0 +1,1061 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard - Sethu LMS</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #121212 0%, #1a1a1a 100%);
+      color: #e0e0e0;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+    .container {
+      display: flex;
+      width: 100%;
+    }
+    .sidebar {
+      width: 250px;
+      background: #1f1f1f;
+      padding: 1.5rem;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      transition: transform 0.3s ease;
+      box-shadow: 2px 0 10px rgba(255, 179, 0, 0.2);
+      z-index: 1000;
+    }
+    .sidebar.collapsed {
+      transform: translateX(-250px);
+    }
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .sidebar-header h2 {
+      color: #ffb300;
+      font-size: 1.5rem;
+      margin: 0;
+    }
+    .sidebar-toggle {
+      background: none;
+      border: none;
+      color: #ffb300;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    .sidebar nav ul {
+      list-style: none;
+      padding: 0;
+    }
+    .sidebar nav ul li {
+      margin: 0.5rem 0;
+    }
+    .sidebar nav ul li a {
+      color: #e0e0e0;
+      text-decoration: none;
+      font-size: 1.1rem;
+      padding: 0.5rem 1rem;
+      display: block;
+      border-radius: 8px;
+      transition: background 0.3s ease;
+    }
+    .sidebar nav ul li a:hover {
+      background: #ff6d00;
+      color: #121212;
+    }
+    .sidebar nav ul li ul {
+      list-style: none;
+      padding-left: 1.5rem;
+      display: none;
+    }
+    .sidebar nav ul li ul.active {
+      display: block;
+    }
+    .sidebar nav ul li ul li a {
+      font-size: 1rem;
+      padding: 0.3rem 1rem;
+    }
+    .main-content {
+      margin-left: 250px;
+      padding: 2rem;
+      flex-grow: 1;
+      transition: margin-left 0.3s ease;
+    }
+    .main-content.full-width {
+      margin-left: 0;
+    }
+    .profile {
+      background: #1f1f1f;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(255, 179, 0, 0.2);
+      margin-bottom: 2rem;
+      transition: transform 0.3s ease;
+    }
+    .profile:hover {
+      transform: translateY(-5px);
+    }
+    .profile-info h1 {
+      color: #E6F0FA;
+      font-size: 1.8rem;
+      margin: 0 0 0.5rem;
+    }
+    .profile-info p {
+      margin: 0.3rem 0;
+      color: #b0b0b0;
+    }
+    .logout-btn, .download-btn {
+      background: #ff6d00;
+      border: none;
+      padding: 0.7rem 1.5rem;
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s ease, transform 0.2s ease;
+      margin-left: 0.5rem;
+    }
+    .logout-btn:hover, .download-btn:hover {
+      background: #e65c00;
+      transform: scale(1.05);
+    }
+    .section {
+      background: #1f1f1f;
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 20px rgba(255, 179, 0, 0.2);
+      transition: transform 0.3s ease;
+    }
+    .section:hover {
+      transform: translateY(-5px);
+    }
+    .section h2 {
+      color: #ffb300;
+      font-size: 1.6rem;
+      margin: 0 0 1rem;
+    }
+    .course, .student-progress, .user-management, .payment-approvals {
+      background: #2a2a2a;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    .course h3, .student-progress h3, .user-management h3, .payment-approvals h3 {
+      color: #ffca28;
+      font-size: 1.4rem;
+      margin: 0 0 0.5rem;
+    }
+    .course h4, .student-progress h4 {
+      color: #ffca28;
+      font-size: 1.2rem;
+      margin: 0.5rem 0;
+    }
+    .course-summary, .progress-summary {
+      font-style: italic;
+      color: #b0b0b0;
+      margin-bottom: 1rem;
+    }
+    .assessment-list, .progress-list, .user-list, .student-list, .payment-list {
+      list-style: none;
+      padding: 0;
+    }
+    .assessment-list li, .progress-list li, .user-list li, .student-list li, .payment-list li {
+      background: #333;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 0.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.3s ease;
+    }
+    .assessment-list li:hover, .progress-list li:hover, .user-list li:hover, .student-list li:hover, .payment-list li:hover {
+      background: #3a3a3a;
+    }
+    .assessment-info, .progress-info, .user-info, .payment-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 1rem;
+    }
+    .progress-bar {
+      background: #444;
+      border-radius: 12px;
+      width: 120px;
+      height: 20px;
+      overflow: hidden;
+      position: relative;
+    }
+    .progress {
+      background: linear-gradient(90deg, #4caf50, #81c784);
+      height: 100%;
+      width: 0;
+      transition: width 0.5s ease-in-out;
+      border-radius: 12px;
+    }
+    .progress-tooltip {
+      position: absolute;
+      top: -30px;
+      right: 5px;
+      background: #ff8f00cc;
+      color: #121212;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .progress-bar:hover .progress-tooltip {
+      opacity: 1;
+    }
+    .task-summary {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      font-size: 1rem;
+      color: #b0b0b0;
+    }
+    .status-not_started {
+      color: #e53935;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+    .status-in_progress {
+      color: #ffca28;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+    .status-submitted {
+      color: #2196f3;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+    .status-completed {
+      color: #4caf50;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+    .action-btn {
+      background: #ff6d00;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.3s ease;
+      margin-left: 0.5rem;
+    }
+    .action-btn:hover {
+      background: #e65c00;
+    }
+    .action-btn.disabled {
+      background: #666;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    .action-btn.disabled:hover {
+      background: #666;
+      transform: none;
+    }
+    .action-btn.reject {
+      background: #ff4d4d;
+    }
+    .action-btn.reject:hover {
+      background: #cc3d3d;
+    }
+    .toggle-btn {
+      background: #444;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      color: #e0e0e0;
+      cursor: pointer;
+      font-size: 0.9rem;
+      margin: 0.5rem 0.5rem 0.5rem 0;
+      transition: background 0.3s ease;
+    }
+    .toggle-btn.active {
+      background: #ff6d00;
+      color: #121212;
+    }
+    .toggle-btn:hover {
+      background: #555;
+    }
+    .login-activity {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 1rem;
+    }
+    .login-square {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      background: #2a2a2a;
+      position: relative;
+      cursor: pointer;
+    }
+    .login-square.active {
+      background: #4caf50;
+    }
+    .login-square:hover .login-tooltip {
+      opacity: 1;
+    }
+    .login-tooltip {
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ff8f00cc;
+      color: #121212;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      white-space: nowrap;
+    }
+    .attendance-bar {
+      background: #444;
+      border-radius: 12px;
+      width: 100%;
+      height: 20px;
+      overflow: hidden;
+      position: relative;
+      margin-top: 1rem;
+    }
+    .attendance-progress {
+      background: linear-gradient(90deg, #4caf50, #81c784);
+      height: 100%;
+      width: 0;
+      transition: width 0.5s ease-in-out;
+      border-radius: 12px;
+    }
+    .student-list li {
+      cursor: pointer;
+    }
+    .student-details {
+      display: none;
+    }
+    .student-details.active {
+      display: block;
+    }
+    .next-link {
+      color: #2196f3;
+      text-decoration: underline;
+      cursor: pointer;
+      margin-left: 1rem;
+    }
+    .next-link:hover {
+      color: #42a5f5;
+    }
+    .error {
+      color: #ff4d4d;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      text-align: center;
+      display: none;
+      padding: 0.5rem;
+      background: rgba(255, 77, 77, 0.1);
+      border-radius: 4px;
+    }
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 200px;
+      }
+      .main-content {
+        margin-left: 200px;
+      }
+      .main-content.full-width {
+        margin-left: 0;
+      }
+      .login-activity {
+        gap: 4px;
+      }
+      .login-square {
+        width: 15px;
+        height: 15px;
+      }
+    }
+    @media (max-width: 600px) {
+      .sidebar {
+        transform: translateX(-200px);
+      }
+      .sidebar.collapsed {
+        transform: translateX(0);
+      }
+      .main-content {
+        margin-left: 0;
+      }
+      .main-content.full-width {
+        margin-left: 0;
+      }
+      .sidebar-toggle {
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        z-index: 1100;
+      }
+      .login-activity {
+        gap: 3px;
+      }
+      .login-square {
+        width: 12px;
+        height: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h2>Sethu LMS</h2>
+        <button class="sidebar-toggle" id="toggleSidebar">☰</button>
+      </div>
+      <nav>
+        <ul id="navLinks"></ul>
+      </nav>
+    </aside>
+    <main class="main-content" id="mainContent">
+      <header class="profile">
+        <div class="profile-info">
+          <h1>Welcome, <span id="studentName">Student</span> (<span id="username">Loading...</span>)</h1>
+          <p>Role: <span id="userRole">Loading...</span></p>
+          <p>ID: <span id="studentID">Loading...</span></p>
+          <p>Last Login: <span id="lastLogin">Loading...</span></p>
+          <div id="usernameDisplay"></div>
+        </div>
+        <button class="logout-btn" id="logoutBtn">Logout</button>
+        <button class="download-btn" id="downloadBtn" style="display: none;">Download Student Data</button>
+      </header>
+      <div class="error" id="errorMsg"></div>
+      <section id="contentArea"></section>
+    </main>
+  </div>
+
+  <script>
+    async function renderSidebar(role, courses, trainerCourses) {
+      const navLinks = document.getElementById('navLinks');
+      const links = {
+        student: [
+          { name: 'Dashboard', id: 'dashboard' },
+          {
+            name: 'Tasks',
+            id: 'tasks',
+            subLinks: courses?.flatMap(course => course.assessments?.map(assess => ({
+              name: assess.name,
+              id: `task-${assess.id}`,
+              taskId: assess.id,
+              courseId: course.id
+            })) || [])
+          },
+          { name: 'Login Activity', id: 'login-activity' }
+        ],
+        trainer: [
+          { name: 'Dashboard', id: 'dashboard' },
+          { name: 'Student Progress', id: 'student-progress' },
+          {
+            name: 'Manage Courses',
+            id: 'manage-courses',
+            subLinks: trainerCourses?.map(course => ({
+              name: course.name,
+              id: `course-${course.id}`,
+              courseId: course.id
+            })) || []
+          }
+        ],
+        admin: [
+          { name: 'Dashboard', id: 'dashboard' },
+          { name: 'User Management', id: 'user-management' },
+          { name: 'Payment Approvals', id: 'payment-approvals' },
+          { name: 'System Stats', id: 'system-stats' }
+        ]
+      };
+      navLinks.innerHTML = links[role].map(link => `
+        <li>
+          <a href="#" data-section="${link.id}">${link.name}${link.subLinks ? ' ▼' : ''}</a>
+          ${link.subLinks ? `
+            <ul class="sub-menu" id="${link.id}-submenu">
+              ${link.subLinks.map(subLink => `
+                <li><a href="${subLink.taskId ? `/task?courseId=${subLink.courseId}&taskId=${subLink.taskId}` : `#${subLink.id}`}" data-section="${subLink.id}" ${subLink.taskId ? `data-task-id="${subLink.taskId}" data-course-id="${subLink.courseId}"` : `data-course-id="${subLink.courseId}"`}>${subLink.name}</a></li>
+              `).join('')}
+            </ul>
+          ` : ''}
+        </li>
+      `).join('');
+
+      document.querySelectorAll('.sidebar nav a[data-section="tasks"], .sidebar nav a[data-section="manage-courses"]').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const submenu = document.getElementById(`${e.target.dataset.section}-submenu`);
+          if (submenu) {
+            submenu.classList.toggle('active');
+          }
+        });
+      });
+    }
+
+    function renderLoginActivity(loginActivity) {
+      const today = new Date();
+      const days = 30;
+      const activityMap = {};
+      loginActivity.forEach(({ timestamp }) => {
+        const date = new Date(timestamp).toISOString().split('T')[0];
+        activityMap[date] = (activityMap[date] || 0) + 1;
+      });
+      const dates = Array.from({ length: days }, (_, i) => {
+        const date = new Date(today);
+        date.setDate(today.getDate() - i);
+        return date.toISOString().split('T')[0];
+      }).reverse();
+      const loginActivitySection = document.createElement('section');
+      loginActivitySection.className = 'section';
+      loginActivitySection.id = 'login-activity';
+      loginActivitySection.innerHTML = `
+        <h2>Login Activity (Last ${days} Days)</h2>
+        <div class="login-activity">
+          ${dates.map(date => `
+            <div class="login-square ${activityMap[date] ? 'active' : ''}" data-date="${date}">
+              <div class="login-tooltip">${date}: ${activityMap[date] || 0} login${(activityMap[date] || 0) !== 1 ? 's' : ''}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      return loginActivitySection;
+    }
+
+    async function loadPendingPayments() {
+      try {
+        const response = await fetch('/pending-payments', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ adminEmail: localStorage.getItem('userEmail') })
+        });
+        const data = await response.json();
+        if (response.ok) {
+          return data.students || [];
+        } else {
+          document.getElementById('errorMsg').textContent = data.error || 'Error loading pending payments';
+          document.getElementById('errorMsg').style.display = 'block';
+          return [];
+        }
+      } catch (error) {
+        console.error('Pending payments error:', error);
+        document.getElementById('errorMsg').textContent = 'Server error. Please try again later.';
+        document.getElementById('errorMsg').style.display = 'block';
+        return [];
+      }
+    }
+
+    async function approvePayment(studentEmail) {
+      try {
+        const response = await fetch('/approve-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ studentEmail })
+        });
+        const data = await response.json();
+        if (response.ok) {
+          alert('Payment approved successfully');
+          loadDashboard(); // Refresh dashboard
+          return true;
+        } else {
+          document.getElementById('errorMsg').textContent = data.error || 'Error approving payment';
+          document.getElementById('errorMsg').style.display = 'block';
+          return false;
+        }
+      } catch (error) {
+        console.error('Approve payment error:', error);
+        document.getElementById('errorMsg').textContent = 'Server error. Please try again later.';
+        document.getElementById('errorMsg').style.display = 'block';
+        return false;
+      }
+    }
+
+    async function rejectPayment(studentEmail) {
+      try {
+        const response = await fetch('/reject-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ studentEmail })
+        });
+        const data = await response.json();
+        if (response.ok) {
+          alert('Payment rejected successfully');
+          loadDashboard(); // Refresh dashboard
+          return true;
+        } else {
+          document.getElementById('errorMsg').textContent = data.error || 'Error rejecting payment';
+          document.getElementById('errorMsg').style.display = 'block';
+          return false;
+        }
+      } catch (error) {
+        console.error('Reject payment error:', error);
+        document.getElementById('errorMsg').textContent = 'Server error. Please try again later.';
+        document.getElementById('errorMsg').style.display = 'block';
+        return false;
+      }
+    }
+
+    async function markTaskCompleted(studentEmail, courseId, taskId) {
+      try {
+        const response = await fetch('/update-task', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: studentEmail,
+            courseId,
+            taskId,
+            status: 'completed',
+            role: 'trainer'
+          })
+        });
+        const data = await response.json();
+        if (response.ok) {
+          alert('Task marked as completed');
+          loadDashboard(); // Refresh dashboard
+          return true;
+        } else {
+          document.getElementById('errorMsg').textContent = data.error || 'Error marking task as completed';
+          document.getElementById('errorMsg').style.display = 'block';
+          return false;
+        }
+      } catch (error) {
+        console.error('Mark task completed error:', error);
+        document.getElementById('errorMsg').textContent = 'Server error. Please try again later.';
+        document.getElementById('errorMsg').style.display = 'block';
+        return false;
+      }
+    }
+
+    async function renderContent(role, studentData) {
+      const contentArea = document.getElementById('contentArea');
+      contentArea.innerHTML = '';
+
+      if (role === 'student') {
+        const usernameDisplay = document.getElementById('usernameDisplay');
+        usernameDisplay.textContent = studentData.adminApproval ? `Your Username: ${studentData.username}` : 'Awaiting admin approval for your username.';
+
+        const attendanceSection = document.createElement('section');
+        attendanceSection.className = 'section';
+        attendanceSection.id = 'attendance';
+        attendanceSection.innerHTML = `
+          <h2>Your Attendance</h2>
+          <p id="attendancePercent">Your attendance is ${studentData.attendancePercent || 0}%</p>
+          <div class="attendance-bar">
+            <div class="attendance-progress" style="width: ${studentData.attendancePercent || 0}%"></div>
+          </div>
+        `;
+        contentArea.appendChild(attendanceSection);
+
+        const tasksSection = document.createElement('section');
+        tasksSection.className = 'section';
+        tasksSection.id = 'tasks';
+        tasksSection.innerHTML = `
+          <h2>Your Tasks</h2>
+          <div id="taskList">
+            ${studentData.courses.length > 0 ? studentData.courses.map(course => `
+              <div class="course">
+                <h3>${course.name}</h3>
+                <ul class="assessment-list">
+                  ${course.assessments.map(assess => {
+                    const currentIndex = course.assessments.findIndex(a => a.id === assess.id);
+                    const nextTask = course.assessments[currentIndex + 1] || null;
+                    const nextCourse = studentData.courses.find(c => c.id > course.id && c.assessments.some(a => a.status !== 'completed')) || null;
+                    const nextUncompletedTask = nextTask || (nextCourse ? nextCourse.assessments.find(a => a.status !== 'completed') : null);
+                    return `
+                      <li>
+                        <div class="assessment-info">
+                          <a href="/task?courseId=${course.id}&taskId=${assess.id}" class="assessment-name">
+                            ${assess.name} 
+                            <span class="status-${assess.status}">
+                              ${assess.status === 'completed' ? '✔' : assess.status === 'submitted' ? '↑' : assess.status === 'in_progress' ? '↻' : '✘'}
+                            </span>
+                          </a>
+                          ${((assess.status === 'completed' || assess.status === 'submitted') && nextUncompletedTask) ? `
+                            <span class="next-link" onclick="window.location.href='/task?courseId=${nextUncompletedTask ? (nextCourse ? nextCourse.id : course.id) : course.id}&taskId=${nextUncompletedTask ? nextUncompletedTask.id : ''}'">Next Task</span>
+                          ` : ''}
+                        </div>
+                      </li>
+                    `;
+                  }).join('')}
+                </ul>
+              </div>
+            `).join('') : '<p>No courses registered. Please register for a course.</p>'}
+          </div>
+        `;
+        contentArea.appendChild(tasksSection);
+
+        const loginActivitySection = renderLoginActivity(studentData.loginActivity || []);
+        contentArea.appendChild(loginActivitySection);
+      } else if (role === 'trainer') {
+        const downloadBtn = document.getElementById('downloadBtn');
+        downloadBtn.style.display = 'inline-block';
+
+        const progressSection = document.createElement('section');
+        progressSection.className = 'section';
+        progressSection.id = 'student-progress';
+        progressSection.innerHTML = `
+          <h2>Student Progress</h2>
+          <div id="progressList">
+            <h3>Students</h3>
+            <div>
+              <button class="toggle-btn active" id="showAll" data-filter="all">All Tasks</button>
+              <button class="toggle-btn" id="showCompleted" data-filter="completed">Completed Tasks</button>
+              <button class="toggle-btn" id="showSubmitted" data-filter="submitted">Submitted Tasks</button>
+              <button class="toggle-btn" id="showPending" data-filter="pending">Pending Tasks</button>
+            </div>
+            <ul class="student-list" id="studentList">Loading students...</ul>
+            <div class="student-details" id="studentDetails"></div>
+          </div>
+        `;
+        contentArea.appendChild(progressSection);
+
+        try {
+          const response = await fetch('/students', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ trainerEmail: localStorage.getItem('userEmail') })
+          });
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          const data = await response.json();
+          console.log('Students data received:', data);
+          let students = data.students || [];
+          if (!students.length) {
+            console.warn('No students fetched for trainer:', localStorage.getItem('userEmail'));
+            document.getElementById('studentList').innerHTML = '<p>No students found.</p>';
+            return;
+          }
+
+          const studentList = document.getElementById('studentList');
+          studentList.innerHTML = students.map(student => `
+            <li data-email="${student.email}">
+              <div class="user-info">
+                <span>${student.name} (${student.email})</span>
+                <span class="task-summary">
+                  Completed: ${student.completedTasks || 0} / 
+                  Submitted: ${student.submittedTasks || 0} / 
+                  Total: ${student.totalTasks || 0}
+                </span>
+                <span>Attendance: ${student.attendancePercent || 0}%</span>
+              </div>
+            </li>
+          `).join('');
+
+          let currentFilter = 'all';
+
+          const renderStudentDetails = (student) => {
+            const totalTasks = student.totalTasks || 0;
+            const completedTasks = student.completedTasks || 0;
+            const submittedTasks = student.submittedTasks || 0;
+            const filteredAssessments = (course) => {
+              if (currentFilter === 'completed') return course.assessments.filter(a => a.status === 'completed');
+              if (currentFilter === 'submitted') return course.assessments.filter(a => a.status === 'submitted');
+              if (currentFilter === 'pending') return course.assessments.filter(a => a.status !== 'completed' && a.status !== 'submitted');
+              return course.assessments;
+            };
+
+            const details = document.getElementById('studentDetails');
+            details.classList.add('active');
+            details.dataset.email = student.email;
+            details.innerHTML = `
+              <h3>${student.name}'s Task Progress</h3>
+              <p class="task-summary">
+                Completed: ${completedTasks} / 
+                Submitted: ${submittedTasks} / 
+                Total: ${totalTasks} tasks | 
+                Attendance: ${student.attendancePercent || 0}%
+              </p>
+              <div class="progress-bar" title="${totalTasks ? Math.round(((completedTasks + submittedTasks) / totalTasks) * 100) : 0}% Progress">
+                <div class="progress" style="width: ${totalTasks ? Math.round(((completedTasks + submittedTasks) / totalTasks) * 100) : 0}%"></div>
+                <div class="progress-tooltip">${totalTasks ? Math.round(((completedTasks + submittedTasks) / totalTasks) * 100) : 0}%</div>
+              </div>
+              ${student.courses?.map(course => `
+                <div class="course">
+                  <h4>${course.name}</h4>
+                  <p class="course-summary">
+                    Completed: ${course.assessments.filter(a => a.status === 'completed').length} / 
+                    Submitted: ${course.assessments.filter(a => a.status === 'submitted').length} / 
+                    Total: ${course.assessments.length}
+                  </p>
+                  <ul class="assessment-list">
+                    ${filteredAssessments(course).map(assess => `
+                      <li>
+                        <div class="assessment-info">
+                          <span class="assessment-name">${assess.name} <span class="status-${assess.status}">
+                            ${assess.status.replace('_', ' ').toUpperCase()}
+                          </span></span>
+                          ${assess.status === 'submitted' ? `
+                            <button class="action-btn" onclick="markTaskCompleted('${student.email}', ${course.id}, ${assess.id})">Mark as Completed</button>
+                          ` : ''}
+                        </div>
+                      </li>
+                    `).join('')}
+                  </ul>
+                </div>
+              `).join('') || '<p>No course data available.</p>'}
+            `;
+          };
+
+          const attachFilterHandlers = (students) => {
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+              btn.addEventListener('click', () => {
+                document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                const selectedStudent = students.find(s => s.email === document.querySelector('.student-details.active')?.dataset?.email);
+                if (selectedStudent) {
+                  renderStudentDetails(selectedStudent);
+                }
+              });
+            });
+          };
+
+          document.querySelectorAll('.student-list li').forEach(li => {
+            li.addEventListener('click', () => {
+              const email = li.dataset.email;
+              const student = students.find(s => s.email === email);
+              renderStudentDetails(student);
+            });
+          });
+
+          attachFilterHandlers(students);
+        } catch (error) {
+          console.error('Error fetching students:', error);
+          document.getElementById('studentList').innerHTML = '<p>Error loading students. Check server connection.</p>';
+        }
+
+        const manageCoursesSection = document.createElement('section');
+        manageCoursesSection.className = 'section';
+        manageCoursesSection.id = 'manage-courses';
+        manageCoursesSection.innerHTML = `
+          <h2>Manage Courses</h2>
+          <div class="course">
+            <h3>Create New Course</h3>
+            <button class="action-btn">Add Course</button>
+          </div>
+        `;
+        contentArea.appendChild(manageCoursesSection);
+
+        const loginActivitySection = renderLoginActivity(studentData.loginActivity || []);
+        contentArea.appendChild(loginActivitySection);
+      } else if (role === 'admin') {
+        const userManagementSection = document.createElement('section');
+        userManagementSection.className = 'section';
+        userManagementSection.id = 'user-management';
+        userManagementSection.innerHTML = `
+          <h2>User Management</h2>
+          <div id="userList">
+            <div class="user-management">
+              <h3>Users</h3>
+              <ul class="user-list">
+                <li>
+                  <div class="user-info">
+                    <span>John Doe (Student)</span>
+                    <button class="action-btn">Edit</button>
+                  </div>
+                </li>
+                <li>
+                  <div class="user-info">
+                    <span>Jane Smith (Trainer)</span>
+                    <button class="action-btn">Edit</button>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        `;
+        contentArea.appendChild(userManagementSection);
+
+        const paymentApprovalsSection = document.createElement('section');
+        paymentApprovalsSection.className = 'section';
+        paymentApprovalsSection.id = 'payment-approvals';
+        paymentApprovalsSection.innerHTML = `
+          <h2>Payment Approvals</h2>
+          <div class="payment-approvals">
+            <h3>Pending Payments</h3>
+            <ul class="payment-list" id="paymentList">Loading pending payments...</ul>
+          </div>
+        `;
+        contentArea.appendChild(paymentApprovalsSection);
+
+        loadPendingPayments().then(students => {
+          const paymentList = document.getElementById('paymentList');
+          if (students.length === 0) {
+            paymentList.innerHTML = '<p>No pending payments found.</p>';
+            return;
+          }
+          paymentList.innerHTML = students.map(student => `
+            <li data-email="${student.email}">
+              <div class="payment-info">
+                <span>${student.name} (${student.email})</span>
+                <span>Username: ${student.username}</span>
+                <button class="action-btn" onclick="approvePayment('${student.email}')">Approve</button>
+                <button class="action-btn reject" onclick="rejectPayment('${student.email}')">Reject</button>
+              </div>
+            </li>
+          `).join('');
+        });
+
+        const statsSection = document.createElement('section');
+        statsSection.className = 'section';
+        statsSection.id = 'system-stats';
+        statsSection.innerHTML = `
+          <h2>System Stats</h2>
+          <p>Total Users: 100</p>
+          <p>Active Courses: 3</p>
+        `;
+        contentArea.appendChild(statsSection);
+
+        const loginActivitySection = renderLoginActivity(studentData.loginActivity || []);
+        contentArea.appendChild(loginActivitySection);
+      }
+
+      document.querySelectorAll('.sidebar nav a:not([data-task-id])').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const sectionId = e.target.dataset.section;
+          document.querySelectorAll('.section').forEach(section => {
+            section.style.display = section.id === sectionId ? 'block' : 'none';
+          });
+          if (sectionId === 'student-progress') {
+            document.getElementById('studentDetails').classList.remove('active');
+          }
+        });
+      });
+    }
+
+    async function loadDashboard() {
+      const email = localStorage.getItem('userEmail');
+      const role = localStorage.getItem('userRole');
+
+      if (!email || !role) {
+        alert('User session not found. Please log in again.');
+        window.location.href = '/login';
+        return;
+      }
+
+      console.log(`Loading dashboard for email: ${email}, role: ${role}`);
+
+      let studentData = {
+        name: 'Unknown',
+        username: 'N/A',
+        studentID: 'N/A',
+        loginActivity: [],
+        attendancePercent: 0,
+        courses: [],
+        trainerCourses: [],
+        adminApproval: false
+      };
+
+      try {
+        const response = await fetch('/user-data', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+          console.log('User data fetched successfully:', data.user);
+          studentData = data.user;
+          localStorage.setItem('mockUserData', JSON.stringify(studentData));
+        } else {
+          console.warn('Backend fetch failed:', data.error);
+          studentData = JSON.parse(localStorage.getItem('mockUserData')) || studentData;
+        }
+      } catch (error) {
+        console.warn('Backend fetch failed, using mock user data:', error);
+        studentData = JSON.parse(localStorage.getItem('mockUserData')) || studentData;
+      }
+
+      document.getElementById('studentName').textContent = studentData.name || 'Unknown';
+      document.getElementById('username').textContent = studentData.username || 'N/A';
+      document.getElementById('studentID').textContent = studentData.studentID || 'N/A';
+      document.getElementById('userRole').textContent = role.charAt(0).toUpperCase() + role.slice(1);
+      document.getElementById('lastLogin').textContent = studentData.loginActivity.length > 0
+        ? new Date(studentData.loginActivity[studentData.loginActivity.length - 1].timestamp).toLocaleString()
+        : 'No login history';
+
+      await renderSidebar(role, studentData.courses, studentData.trainerCourses);
+      await renderContent(role, studentData);
+    }
+
+    document.getElementById('toggleSidebar').addEventListener('click', () => {
+      const sidebar = document.getElementById('sidebar');
+      const mainContent = document.getElementById('mainContent');
+      sidebar.classList.toggle('collapsed');
+      mainContent.classList.toggle('full-width');
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      const email = localStorage.getItem('userEmail');
+      try {
+        await fetch('/logout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+      } catch (error) {
+        console.error('Logout error:', error);
+      }
+      localStorage.removeItem('userEmail');
+      localStorage.removeItem('userRole');
+      localStorage.removeItem('selectedCourseId');
+      localStorage.removeItem('selectedCourseName');
+      localStorage.removeItem('mockUserData');
+      alert('Logging out...');
+      window.location.href = '/login';
+    });
+
+    document.getElementById('downloadBtn').addEventListener('click', async () => {
+      const email = localStorage.getItem('userEmail');
+      try {
+        const response = await fetch('/download-students', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ trainerEmail: email })
+        });
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'student_data.xlsx';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+        } else {
+          const data = await response.json();
+          alert('Error downloading student data: ' + data.error);
+        }
+      } catch (error) {
+        console.error('Download error:', error);
+        alert('Server error downloading student data.');
+      }
+    });
+
+    loadDashboard();
+  </script>
+</body>
+</html>
